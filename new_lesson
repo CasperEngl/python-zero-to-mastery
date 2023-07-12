@@ -1,0 +1,93 @@
+#!/usr/bin/env python3
+
+import os
+import re
+import subprocess
+
+
+def find_lesson_dir():
+    # Get the git diff in the last commit
+    diff_output = subprocess.check_output(["git", "diff", "HEAD~1", "--name-status", "-r"])
+
+    # Search for the lesson directory in the diff output
+    for line in diff_output.decode().splitlines():
+        status, path = line.split("\t")
+        abs_path = os.path.abspath(path)  # Convert to absolute path
+        abs_path = os.path.dirname(abs_path)  # Remove filename from path
+
+        if status.startswith("A") and os.path.isdir(abs_path):
+            match = re.match(r"^(\d{1,3})\. (.+)$", os.path.basename(abs_path))
+
+            if match:
+                lesson_id = int(match.group(1))
+
+                if 0 <= lesson_id <= 1000:
+                    return abs_path
+
+    # If no lesson directory is found, return None
+    return None
+
+
+def find_lesson_id(lesson_directory):
+    # Search for the lesson ID in the lesson directory name
+    match = re.match(r"^(\d{1,3})\. (.+)$", os.path.basename(lesson_directory))
+
+    if match:
+        lesson_id = int(match.group(1))
+
+        return lesson_id
+
+
+def find_lesson_name(lesson_directory):
+    # Search for the lesson ID in the lesson directory name
+    match = re.match(r"^(\d{1,3})\. (.+)$", os.path.basename(lesson_directory))
+
+    if match:
+        lesson_name = match.group(2)
+
+        return lesson_name
+
+
+def create_lesson_dir(lesson_id, lesson_name):
+    # Create the lesson directory
+    lesson_dir_name = f"{lesson_id}. {lesson_name}"
+    os.mkdir(lesson_dir_name)
+
+    # Create the main.py file and write the directory name as a title
+    with open(os.path.join(lesson_dir_name, "main.py"), "w") as f:
+        f.write(f"# {lesson_dir_name}\n")
+
+    return lesson_dir_name
+
+
+def clear_terminal():
+    os.system("cls" if os.name == "nt" else "clear")
+
+
+# Example usage
+
+lesson_dir = find_lesson_dir()
+lesson_id = find_lesson_id(lesson_dir) if lesson_dir else None
+
+
+# If the lesson directory is found, create the lesson directory
+if lesson_id:
+    print(f"Found previous lesson ID: {lesson_id}")
+    print(f"New lesson ID: {lesson_id + 1}")
+
+    lesson_dir_name = create_lesson_dir(int(lesson_id) + 1, input("Enter the lesson name: "))
+
+    clear_terminal()
+    print(f"Created lesson directory: {lesson_dir_name}")
+
+# If the lesson directory is not found, ask the user for the lesson ID and name
+else:
+    print("Could not find previous lesson ID.")
+
+    lesson_id = int(input("Enter the lesson ID: "))
+    lesson_name = input("Enter the lesson name: ")
+
+    lesson_dir_name = create_lesson_dir(lesson_id, lesson_name)
+
+    clear_terminal()
+    print(f"Created lesson directory: {lesson_dir_name}")
