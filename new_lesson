@@ -16,7 +16,7 @@ def find_lesson_dir():
         abs_path = os.path.abspath(path)  # Convert to absolute path
         abs_path = os.path.dirname(abs_path)  # Remove filename from path
 
-        if status.startswith("A") and os.path.isdir(abs_path):
+        if status.startswith(("A", "M", "R")) and os.path.isdir(abs_path):
             match = re.match(r"^(\d{1,3})\. (.+)$", os.path.basename(abs_path))
 
             if match:
