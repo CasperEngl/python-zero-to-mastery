@@ -3,6 +3,7 @@
 import os
 import re
 import subprocess
+import sys
 
 
 def find_lesson_dir():
@@ -75,10 +76,13 @@ if lesson_id:
     print(f"Found previous lesson ID: {lesson_id}")
     print(f"New lesson ID: {lesson_id + 1}")
 
-    lesson_dir_name = create_lesson_dir(int(lesson_id) + 1, input("Enter the lesson name: "))
+    try:
+        lesson_dir_name = create_lesson_dir(int(lesson_id) + 1, input("Enter the lesson name: "))
+    except KeyboardInterrupt:
+        print("\nCancelled")
+        sys.exit(1)
 
-    clear_terminal()
-    print(f"Created lesson directory: {lesson_dir_name}")
+    print(f"\n\nCreated lesson directory:\n{lesson_dir_name} 🎉")
 
 # If the lesson directory is not found, ask the user for the lesson ID and name
 else:
@@ -87,7 +91,10 @@ else:
     lesson_id = int(input("Enter the lesson ID: "))
     lesson_name = input("Enter the lesson name: ")
 
-    lesson_dir_name = create_lesson_dir(lesson_id, lesson_name)
+    try:
+        lesson_dir_name = create_lesson_dir(lesson_id, lesson_name)
+    except KeyboardInterrupt:
+        print("\nCancelled")
+        sys.exit(1)
 
-    clear_terminal()
-    print(f"Created lesson directory: {lesson_dir_name}")
+    print(f"\n\nCreated lesson directory:\n{lesson_dir_name} 🎉")
