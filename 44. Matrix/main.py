@@ -2,9 +2,13 @@ matrix = [
     [1, 2, 3],
     [2, 4, 6],
     [7, 8, 9],
+    [0, 0, 0],
+    [1, 1, 1],
+    [2, 2, 2],
 ]
 
 print(matrix[0][1])
+print(len(matrix))
 
 pixel_matrix = [
     [255, 0, 255],
