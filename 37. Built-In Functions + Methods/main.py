@@ -2,7 +2,7 @@ print(len("hellloooooo"))
 
 greet = "helloooooo"
 
-print(greet[0:len(greet)])
+print(greet[0 : len(greet)])
 
 quote = "to be or not to be"
 
