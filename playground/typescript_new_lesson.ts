@@ -10,11 +10,9 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
-// ...
-
 async function findLessonDirs(numberOfCommits: number = 1): Promise<string[]> {
   const diffOutput = execSync(
-    `git diff HEAD~${numberOfCommits} --name-status -r`
+    `git diff HEAD~${numberOfCommits} --name-status -r`,
   ).toString();
 
   const lessonDirs: string[] = [];
@@ -59,16 +57,18 @@ async function findLessonIds(lessonDirectories: string[]): Promise<number[]> {
 
 async function createLessonDir(
   lessonId: number,
-  lessonName: string
+  lessonName: string,
 ): Promise<string> {
+  const currentDir = process.cwd();
   const lessonDirName = `${lessonId}. ${lessonName}`;
-  fs.mkdirSync(lessonDirName);
-  fs.writeFileSync(path.join(lessonDirName, "main.py"), `# ${lessonDirName}\n`);
+  const lessonDirPath = path.resolve(currentDir, "..", lessonDirName);
+
+  fs.mkdirSync(lessonDirPath);
+
+  fs.writeFileSync(path.join(lessonDirPath, "main.py"), `# ${lessonDirName}\n`);
 
   return lessonDirName;
 }
-
-// Usage example
 
 let numberOfCommits = 1;
 let lessonDirs = await findLessonDirs(numberOfCommits);
@@ -81,7 +81,7 @@ while (lessonDirs.length === 0) {
         (answer) => {
           numberOfCommits = parseInt(answer);
           resolve(void 0);
-        }
+        },
       );
     });
   }
@@ -103,7 +103,7 @@ if (lessonId) {
       rl.question("Enter the lesson name: ", (answer) => {
         resolve(answer);
       });
-    })
+    }),
   );
 
   console.log(`\n\nCreated lesson directory:\n${lessonDirName} 🎉`);
@@ -121,6 +121,14 @@ if (lessonId) {
       resolve(answer);
     });
   });
+
+  if (typeof lessonId !== "number" || isNaN(lessonId)) {
+    throw new Error("Invalid lesson ID");
+  }
+
+  if (typeof lessonName !== "string") {
+    throw new Error("Invalid lesson name");
+  }
 
   const lessonDirName = await createLessonDir(lessonId, lessonName);
 
