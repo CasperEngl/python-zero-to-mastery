@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# This script assumes that lesson directories have names in the format 'ID. LessonName'
+
+# Function to create a lesson directory
+create_lesson_dir() {
+    local lesson_id=$1
+    local lesson_name=$2
+    local lesson_dir_name="${lesson_id}. ${lesson_name}"
+    mkdir "$lesson_dir_name"
+    echo "# ${lesson_dir_name}" > "${lesson_dir_name}/main.py"
+}
+
+# Ask the user for the number of commits to search
+read -p "Enter the number of commits to search: " number_of_commits
+
+# Get the lesson directories from the git diff
+lesson_dirs=$(git diff HEAD~${number_of_commits} --name-status -r | awk -F'\t' '{print $2}' | xargs -n 1 dirname | sort | uniq)
+
+if [ -z "$lesson_dirs" ]; then
+    echo "No lesson directories found."
+
+    # Ask the user for the lesson ID and name
+    read -p "Enter the lesson ID: " lesson_id
+    read -p "Enter the lesson name: " lesson_name
+
+    lesson_dir_name=$(create_lesson_dir "$lesson_id" "$lesson_name")
+else
+    # Get the highest lesson ID
+    highest_lesson_id=$(echo "$lesson_dirs" | awk -F'. ' '{print $1}' | sort -nr | head -n 1)
+
+    echo "Found previous lesson ID: $highest_lesson_id"
+    
+    # Calculate the new lesson ID
+    new_lesson_id=$((highest_lesson_id+1))
+
+    echo "New lesson ID: $new_lesson_id"
+
+    # Ask the user for the lesson name
+    read -p "Enter the lesson name: " lesson_name
+
+    lesson_dir_name=$(create_lesson_dir "$new_lesson_id" "$lesson_name")
+fi
+
+echo -e "\n\nCreated lesson directory:\n${lesson_dir_name} 🎉"
